@@ -1,65 +1,39 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import {legacy_createStore as createStore} from "redux";
+import {bindActionCreators, legacy_createStore as createStore} from "redux";
+import * as actions from "./actions";
+import reducer from "./reducer";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
-  const initialState = {value: 0};
 
-const reducer = (state = initialState, action) => {
-  switch (action.type) {
-    case 'INCREMENT':
-      return {
-        ...state,
-        value: state.value + 1
-      };
-    case 'DECREMENT':
-      return {
-        ...state,
-        value: state.value - 1
-      };
-    case "RANDOM":
-      return {
-        ...state,
-        value: state.value + action.payload
-
-      };
-    default:
-      return state;
-  }
-}
 
 const store = createStore(reducer);
+const {dispatch, subscribe, getState} = store;
 
 const update = () => {
-  document.getElementById('counter').innerText = String(store.getState().value);
+  document.getElementById('counter').innerText = String(getState().value);
 };
-store.subscribe(update);
 
-const increment = () => ({ type: 'INCREMENT' });
+subscribe(update);
 
-const decrement = () => ({type: 'DECREMENT'});
-const random = (value) => ({type: 'RANDOM', payload: value})
+/*const bindActionCreator = (creator, dispatch) => (...args) => {
+  dispatch(creator(...args));
+};*/
 
+const {increment, decrement, random} = bindActionCreators(actions, dispatch);
+// const decDispatch = bindActionCreators(decrement, dispatch);
+// const rndDispatch = bindActionCreators(random, dispatch);
 
-document.getElementById('increment').addEventListener('click', () => {
-  store.dispatch(increment());
-});
+document.getElementById('increment').addEventListener('click', increment);
 
-document.getElementById('decrement').addEventListener('click', () => {
-  store.dispatch(decrement());
-});
+document.getElementById('decrement').addEventListener('click', decrement);
 
 document.getElementById('random').addEventListener('click', () => {
   const value = Math.floor(Math.random() * 10);
-  store.dispatch(random(value));
+  random(value);
 });
 
-console.log(store.getState()); // 0
-
-// let state = reducer(initialState, { type: 'INCREMENT' });
-// state = reducer(state, { type: 'INCREMENT' });
-// state = reducer(state, { type: 'INCREMENT' });
 
 
 
